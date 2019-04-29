@@ -25,7 +25,7 @@ export default {
   &__startBtn {
     display: inline-block;
     padding: 15px;
-    font-size: 5em;
+    font-size: 5rem;
     background-color: #000;
     color: #fff;
     margin: 7px;
