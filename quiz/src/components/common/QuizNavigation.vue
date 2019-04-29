@@ -47,7 +47,7 @@ export default {
   overflow: scroll;
 
   .quizNavigation__item {
-    padding: 5%;
+    padding: 4%;
     font-size: 1.2rem;
     font-weight: 700;
     cursor: pointer;

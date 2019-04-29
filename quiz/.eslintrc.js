@@ -52,6 +52,8 @@ module.exports = {
     'no-underscore-dangle': 'off',
     'func-names': 'off',
     'class-methods-use-this': 'off',
-    'arrow-body-style': 'off'
+    'arrow-body-style': 'off',
+    'import/prefer-default-export': 'off',
+    'import/first': [ 'error', 'DISABLE-absolute-first' ]
   }
 }

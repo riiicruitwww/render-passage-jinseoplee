@@ -9,11 +9,7 @@ export default {
     data: {
       type: Object,
       required: true,
-      default: {
-        text: '',
-        styles: {},
-      }
-    }
+    },
   },
   computed: {
     text() {
@@ -21,7 +17,7 @@ export default {
     },
     styles() {
       return this.data.styles;
-    }
+    },
   },
 };
 </script>

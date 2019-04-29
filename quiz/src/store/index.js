@@ -6,22 +6,25 @@ import actions from './actions';
 
 Vue.use(Vuex);
 
-const Quiz = {
-  passageBox: {
-    name: '',
+const QuizState = {
+  quiz: {
     type: '',
     preview: '',
-    passageTranslations: [],
-    passages: [],
-    root: [],
-    vocabularies: [],
+    name: '',
+    passageBox: {
+      passageTranslations: [],
+      passages: [],
+      root: [],
+      vocabularies: [],
+    },
+    questions: [],
   },
-  questions: [],
+  quizSolveState: [],
 };
 
 export default new Vuex.Store({
   state: {
-    Quiz,
+    QuizState,
   },
   getters,
   mutations,

@@ -1,2 +1,4 @@
-const QUIZ = 'QUIZ';
-export default { QUIZ };
+export const QUIZ_STATE = {
+  QUIZ: 'QUIZ',
+  QUIZ_SOLVE_STATE: 'QUIZ_SOLVE_STATE',
+};
