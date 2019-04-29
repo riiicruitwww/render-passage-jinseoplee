@@ -20,8 +20,8 @@
         <paragraph class="reviewArea__translate" v-for="passage of passageTranslations" :key="passage.id" :data="passage"/>
         <h2>단어</h2>
         <div class="reviewArea__voca" v-for="(item, index) of vocabularies" :key="index">
-          <span class="voca__word">{{ item.word }}</span>
-          <span class="voca__meaning">{{ item.meaning }}</span>
+          <p class="voca__word">{{ item.word }}</p>
+          <p class="voca__meaning">{{ item.meaning }}</p>
         </div>
       </div>
     </div>
@@ -228,6 +228,7 @@ export default {
         font-size: 1.5rem;
         font-weight: 700;
         margin-bottom: 20px;
+        border-bottom: 1px solid #fff;
       }
 
       .reviewArea__translate {
@@ -235,7 +236,12 @@ export default {
       }
 
       .voca__word {
-        margin-right: 3em;
+        float: left;
+        width: 9em;
+      }
+
+      .voca__meaning {
+        overflow: hidden;
       }
     }
   }

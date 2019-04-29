@@ -11,6 +11,7 @@ export default {
       const parsedData = await quizParser(response.data);
       store.commit(QUIZ_STATE.QUIZ, parsedData);
 
+      // 퀴즈 진행에 필요한 데이터 state에 초기화
       const quizSolveState = await parsedData.questions.reduce((tempArray) => {
         tempArray.push({
           selectedAnswer: '',
