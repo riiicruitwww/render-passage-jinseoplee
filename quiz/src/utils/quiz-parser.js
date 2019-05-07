@@ -6,8 +6,6 @@ const replaceString = (origin, from, offset, str) => {
 
 const extract = {
   chunkMap: {},
-  blank() {
-  },
   question_area(qa) {
     const paragraphArray = [];
     if (qa.children) {
@@ -139,18 +137,15 @@ const extract = {
   },
 };
 
-const QuizParser = (quiz) => {
-  extract.setChunkMap(quiz.chunk_map);
-  const questions = quiz.questions ? extract.extractQuestion(quiz.questions) : [];
-  const passageBox = quiz.passage_box ? extract.extractPassage(quiz.passage_box) : [];
-
+const quizParser = ({ name, type, preview, questions, chunk_map, passage_box }) => {
+  extract.setChunkMap(chunk_map);
   return {
-    name: quiz.name,
-    type: quiz.type,
-    preview: quiz.preview,
-    questions,
-    passageBox,
+    name,
+    type,
+    preview,
+    questions: questions ? extract.extractQuestion(questions) : [],
+    passageBox: passage_box ? extract.extractPassage(passage_box) : [],
   };
 };
 
-export default QuizParser;
+export default quizParser;
