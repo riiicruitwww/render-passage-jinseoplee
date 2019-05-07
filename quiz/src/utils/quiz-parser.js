@@ -1,43 +1,33 @@
 const replaceString = (origin, from, offset, str) => {
   const head = origin.substring(0, from);
   const tail = origin.substring(from + offset, origin.length);
+
   return head.concat(str).concat(tail);
+};
+
+const changeUnderscoreToCamel = (str) => {
+  return str.split('_').map((item, index) => {
+    return index < 1 ? item : `${item.charAt(0).toUpperCase()}${item.slice(1)}`;
+  }).join('');
 };
 
 const extract = {
   chunkMap: {},
-  question_area(qa) {
-    const paragraphArray = [];
-    if (qa.children) {
-      for (const child of qa.children) {
-        paragraphArray.push(this[child.name](child));
-      }
-    }
-    return paragraphArray;
-  },
-  choice_area(ca) {
-    const choiceArray = [];
-    if (ca.children) {
-      for (const child of ca.children) {
-        choiceArray.push(this[child.name](child));
-      }
-    }
-    return choiceArray;
-  },
-  choice(c) {
-    const paragraphArray = [];
-    if (c.children) {
-      for (const child of c.children) {
-        paragraphArray.push(this[child.name](child));
-      }
-    }
-    return paragraphArray;
-  },
   setChunkMap(chunkMap) {
     this.chunkMap = chunkMap;
   },
+  children(c) {
+    return c.children.map((child) => {
+      if (child.name === 'paragraph') {
+        return this[child.name](child);
+      }
+
+      return this.children(child);
+    });
+  },
   paragraph(p) {
     const chunk = (p.children && p.children.length > 0) ? this[p.children[0].name](p.children[0]) : {};
+
     chunk.style = p.style ? Object.keys(p.style).reduce((styles, name) => {
       const stylesClone = styles;
       if (typeof p.style[name] === 'string' && p.style[name].trim()) {
@@ -45,6 +35,7 @@ const extract = {
       }
       return stylesClone;
     }, {}) : {};
+
     return chunk;
   },
   chunk_ref(c) {
@@ -53,41 +44,40 @@ const extract = {
 
     if (c.children) {
       for (const child of c.children) {
-        if (child.name === 'segment') {
-          const s = child;
-          if (s.data) {
-            for (const style of s.data.styles) {
-              switch (style) {
-                case 'blank':
-                  text = replaceString(text, s.data.begin, s.data.offset, `---${child.order}---`);
-                  break;
-                default:
-              }
+        if (child.name === 'segment' && child.data) {
+          for (const style of child.data.styles) {
+            switch (style) {
+              case 'blank':
+                text = replaceString(text, child.data.begin, child.data.offset, `---${child.order}---`);
+                break;
+              default:
             }
           }
         }
       }
     }
+
     return {
       text,
     };
   },
   extractQuestion(questions) {
     const result = [];
+
     for (const question of questions) {
       const extracted = {};
       extracted.correctAnswer = question.correct_answer;
+
       if (question.view_tree && question.view_tree.children) {
         for (const child of question.view_tree.children) {
-          if (child.name === 'question_area') {
-            extracted.questionArea = this[child.name](child);
-          } else if (child.name === 'choice_area') {
-            extracted.choiceArea = this[child.name](child);
+          if (child.name !== 'blank') {
+            extracted[changeUnderscoreToCamel(child.name)] = this.children(child);
           }
         }
         result.push(extracted);
       }
     }
+
     return result;
   },
   extractPassage(passageBox) {
@@ -98,39 +88,30 @@ const extract = {
       vocabularies: passageBox.vocabularies,
     };
 
+    const getPassage = (passages) => {
+      let result = [];
+      for (const passage of passages) {
+        if (passage.view_tree && passage.view_tree.children) {
+          result = this.children(passage.view_tree);
+        }
+      }
+
+      return result;
+    };
+
     // passageBox(root)
     if (passageBox.view_tree && passageBox.view_tree.children) {
-      for (const child of passageBox.view_tree.children) {
-        const root = this[child.name](child);
-        root.id = `root${result.root.length}`;
-        result.root.push(this[child.name](child));
-      }
+      result.root = this.children(passageBox.view_tree);
     }
 
     // passageBox > passages
     if (passageBox.passages) {
-      for (const passage of passageBox.passages) {
-        if (passage.view_tree && passage.view_tree.children) {
-          for (const child of passage.view_tree.children) {
-            const passageParagraph = this[child.name](child);
-            passageParagraph.id = `passage${result.passages.length}`;
-            result.passages.push(passageParagraph);
-          }
-        }
-      }
+      result.passages = getPassage(passageBox.passages);
     }
 
     // passageBox > passage translations
     if (passageBox.passage_translations) {
-      for (const passage of passageBox.passage_translations) {
-        if (passage.view_tree && passage.view_tree.children) {
-          for (const child of passage.view_tree.children) {
-            const passageTranslationsParagraph = this[child.name](child);
-            passageTranslationsParagraph.id = `passageTranslations${result.passageTranslations.length}`;
-            result.passageTranslations.push(passageTranslationsParagraph);
-          }
-        }
-      }
+      result.passageTranslations = getPassage(passageBox.passage_translations);
     }
 
     return result;
@@ -139,6 +120,7 @@ const extract = {
 
 const quizParser = ({ name, type, preview, questions, chunk_map, passage_box }) => {
   extract.setChunkMap(chunk_map);
+
   return {
     name,
     type,
