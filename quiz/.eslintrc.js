@@ -54,6 +54,7 @@ module.exports = {
     'class-methods-use-this': 'off',
     'arrow-body-style': 'off',
     'import/prefer-default-export': 'off',
-    'import/first': [ 'error', 'DISABLE-absolute-first' ]
+    'import/first': [ 'error', 'DISABLE-absolute-first' ],
+    "camelcase": "off"
   }
 }
