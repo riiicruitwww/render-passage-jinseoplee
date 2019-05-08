@@ -1,8 +1,8 @@
 <template>
   <div class="training">
     <article class="training__articleArea">
-      <paragraph class="training__articleHeader" v-for="root of roots" :key="root.id" :data="root"/>
-      <paragraph class="training__articleBody" v-for="passage of passages" :key="passage.id" :data="passage"/>
+      <paragraph class="training__articleHeader" v-for="(root, index) of roots" :key="`root${index}`" :data="root"/>
+      <paragraph class="training__articleBody" v-for="(passage, index) of passages" :key="`passage${index}`" :data="passage"/>
     </article>
     <div class="training__quizArea">
       <div class="training__quizControl">
@@ -17,7 +17,7 @@
       </div>
       <div class="training__reviewArea" v-else-if="showReview">
         <h2>해석</h2>
-        <paragraph class="reviewArea__translate" v-for="passage of passageTranslations" :key="passage.id" :data="passage"/>
+        <paragraph class="reviewArea__translate" v-for="(passage, index) of passageTranslations" :key="`passageT${index}`" :data="passage"/>
         <h2>단어</h2>
         <div class="reviewArea__voca" v-for="(item, index) of vocabularies" :key="index">
           <p class="voca__word">{{ item.word }}</p>
@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
+import { mapActions, mapGetters, mapMutations } from 'vuex';
 import Paragraph from './common/Paragraph';
 import QuizNavigation from './common/QuizNavigation';
 import Quiz from './common/Quiz';
@@ -54,31 +54,28 @@ export default {
   computed: {
     ...mapGetters(['getQuiz', 'getQuizSolveState']),
     roots() {
-      const result = this.getQuiz.passageBox.root.filter((item) => {
+      return this.getQuiz.passageBox.root.filter((item) => {
         return item.text && item.text.trim();
       });
-      return result;
     },
     toiecType() {
       return this.getQuiz.type;
     },
     passages() {
-      const result = this.getQuiz.passageBox.passages.filter((item) => {
+      return this.getQuiz.passageBox.passages.filter((item) => {
         return item.text && item.text.trim();
       });
-      return result;
     },
     passageTranslations() {
-      const result = this.getQuiz.passageBox.passageTranslations.filter((item) => {
+      return this.getQuiz.passageBox.passageTranslations.filter((item) => {
         return item.text && item.text.trim();
       });
-      return result;
     },
     vocabularies() {
       return this.getQuiz.passageBox.vocabularies;
     },
     questions() {
-      const result = this.getQuiz.questions.reduce((questions, question) => {
+      return this.getQuiz.questions.reduce((questions, question) => {
         const questionArea = question.questionArea.filter((questionItem) => {
           return questionItem.text && questionItem.text.trim();
         });
@@ -96,7 +93,6 @@ export default {
         });
         return questions;
       }, []);
-      return result;
     },
     isCompleted() {
       return this.getQuizSolveState.every((item) => {
@@ -113,6 +109,7 @@ export default {
     },
   },
   methods: {
+    ...mapMutations(['RESET_QUIZ_SOLVE_STATE']),
     ...mapActions(['getQuizAPI']),
     async init() {
       try {
@@ -152,13 +149,15 @@ export default {
       this.showReview = true;
     },
     restart() {
+      this.RESET_QUIZ_SOLVE_STATE();
       this.showReview = false;
       this.isCompleted = false;
+      this.currentQuizIndex = 0;
+      
       for (const item of this.getQuizSolveState) {
         item.selectedAnswer = '';
         item.isCheckedAnswer = false;
       }
-      this.currentQuizIndex = 0;
     },
   },
 };

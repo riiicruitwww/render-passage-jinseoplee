@@ -1,12 +1,12 @@
 <template>
   <div class="quiz">
-    <paragraph class="quiz__questionArea" v-for="question of questionArea" :key="question" :data="question"/>
+    <paragraph class="quiz__questionArea" v-for="(question, index) of questionArea" :key="`question${quizno}${index}`" :data="question"/>
     <ul class="quiz__choiceArea">
-      <li v-for="(choices, index) of choiceArea" :key="choices" class="quiz__choiceItem">
+      <li v-for="(choices, index) of choiceArea" :key="`choices${quizno}${index}`" class="quiz__choiceItem">
         <input type="radio" :id="`choiceItem_${quizno}_${index}`" :name="`choiceItem_${quizno}`" :value="indexToAlphabet(index)" v-model="choiceValue">
-        <label :for="`choiceItem_${quizno}_${index}`" :class="isCorrectAnswer(indexToAlphabet(index))">
+        <label :for="`choiceItem_${quizno}_${index}`" :class="isCorrectAnswer(indexToAlphabet(index))" @click="clickLabel">
           <p class="quiz__choiceIndex">{{ index + 1 }}</p>
-          <paragraph class="quiz__choiceText" v-for="choice of choices" :key="choice" :data="choice"/>
+          <paragraph class="quiz__choiceText" v-for="(choice, index) of choices" :key="`choice${quizno}${index}`" :data="choice"/>
         </label>
       </li>
     </ul>
@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapGetters, mapMutations } from 'vuex';
 import Paragraph from '../common/Paragraph';
 
 export default {
@@ -55,16 +55,25 @@ export default {
   },
   watch: {
     choiceValue() {
-      this.getQuizSolveState[this.quizno].selectedAnswer = this.choiceValue;
+      this.UPDATE_QUIZ_SOLVE_STATE({ index: this.quizno, value: this.choiceValue });
+    },
+    getQuizSolveState(now) {
+      this.choiceValue = now[this.quizno].selectedAnswer;
     },
   },
   methods: {
+    ...mapMutations(['UPDATE_QUIZ_SOLVE_STATE']),
     indexToAlphabet(index) {
       const alpabet = ['a', 'b', 'c', 'd', 'e'];
       return alpabet[index];
     },
     isCorrectAnswer(value) {
       return this.isCheckedAnswer && this.correctAnswer === value ? 'isCorrectAnswer' : '';
+    },
+    clickLabel(e) {
+      if (this.isCheckedAnswer) {
+        e.preventDefault();
+      }
     },
   },
 };
