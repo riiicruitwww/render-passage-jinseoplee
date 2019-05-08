@@ -8,11 +8,11 @@ export default {
       const response = await api.getQuizAPI();
 
       // 파싱한 퀴즈 데이터 state에 저장
-      const parsedData = await quizParser(response.data);
+      const parsedData = quizParser(response.data);
       store.commit(QUIZ_STATE.QUIZ, parsedData);
 
       // 퀴즈 진행에 필요한 데이터 state에 초기화
-      const quizSolveState = await parsedData.questions.reduce((tempArray) => {
+      const quizSolveState = parsedData.questions.reduce((tempArray) => {
         tempArray.push({
           selectedAnswer: '',
           isCheckedAnswer: false,
