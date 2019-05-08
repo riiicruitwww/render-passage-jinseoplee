@@ -153,7 +153,7 @@ export default {
       this.showReview = false;
       this.isCompleted = false;
       this.currentQuizIndex = 0;
-      
+
       for (const item of this.getQuizSolveState) {
         item.selectedAnswer = '';
         item.isCheckedAnswer = false;

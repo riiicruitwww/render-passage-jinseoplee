@@ -1,7 +1,9 @@
+/* eslint-disable no-param-reassign */
 const path = require('path');
 const config = require('../config');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const packageConfig = require('../package.json');
+const notifier = require('node-notifier');
 
 exports.assetsPath = function (_path) {
   const assetsSubDirectory = process.env.NODE_ENV === 'production'
@@ -18,8 +20,8 @@ exports.cssLoaders = function (options) {
     loader: 'css-loader',
     options: {
       sourceMap: options.sourceMap,
-    }
-  }
+    },
+  };
 
   const postcssLoader = {
     loader: 'postcss-loader',
@@ -37,8 +39,8 @@ exports.cssLoaders = function (options) {
         loader: `${loader}-loader`,
         options: Object.assign({}, loaderOptions, {
           sourceMap: options.sourceMap,
-        })
-      })
+        }),
+      });
     }
 
     // Extract CSS when that option is specified
@@ -46,11 +48,10 @@ exports.cssLoaders = function (options) {
     if (options.extract) {
       return ExtractTextPlugin.extract({
         use: loaders,
-        fallback: 'vue-style-loader'
-      })
-    } else {
-      return ['vue-style-loader'].concat(loaders);
+        fallback: 'vue-style-loader',
+      });
     }
+    return ['vue-style-loader'].concat(loaders);
   }
 
   // https://vue-loader.vuejs.org/en/configurations/extract-css.html
@@ -71,19 +72,19 @@ exports.styleLoaders = function (options) {
   const loaders = exports.cssLoaders(options);
 
   for (const extension in loaders) {
-    const loader = loaders[extension];
-    output.push({
-      test: new RegExp('\\.' + extension + '$'),
-      use: loader,
-    });
+    if (Object.prototype.hasOwnProperty.call(loaders, extension)) {
+      const loader = loaders[extension];
+      output.push({
+        test: new RegExp(`\\. ${extension} $`),
+        use: loader,
+      });
+    }
   }
 
   return output;
 };
 
 exports.createNotifierCallback = () => {
-  const notifier = require('node-notifier');
-
   return (severity, errors) => {
     if (severity !== 'error') return;
 
